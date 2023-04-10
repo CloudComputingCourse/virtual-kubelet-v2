@@ -61,6 +61,7 @@ type MockConfig struct { //nolint:golint
 	Pods       string            `json:"pods,omitempty"`
 	Others     map[string]string `json:"others,omitempty"`
 	ProviderID string            `json:"providerID,omitempty"`
+	Labels     map[string]string `json:"labels,omitempty"`
 }
 
 // NewMockProviderMockConfig creates a new MockV0Provider. Mock legacy provider does not implement the new asynchronous podnotifier interface
@@ -363,6 +364,12 @@ func (p *MockProvider) ConfigureNode(ctx context.Context, n *v1.Node) { //nolint
 	n.Status.NodeInfo.Architecture = "amd64"
 	n.ObjectMeta.Labels["alpha.service-controller.kubernetes.io/exclude-balancer"] = "true"
 	n.ObjectMeta.Labels["node.kubernetes.io/exclude-from-external-load-balancers"] = "true"
+
+	if p.config.Labels != nil {
+		for k, v := range p.config.Labels {
+			n.ObjectMeta.Labels[k] = v
+		}
+	}
 }
 
 // Capacity returns a resource list containing the capacity limits.
